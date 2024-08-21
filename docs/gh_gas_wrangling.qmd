@@ -1,0 +1,31 @@
+---
+title: "GH gas"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+sf_emissions <- read_csv(here("data", "San_Francisco_Communitywide_Greenhouse_Gas_Inventory.csv"))
+```
+
+```{r}
+sf_sector_emissions <- sf_emissions |>
+  group_by(Calendar_Year, Sector_General) |>
+  summarise(annual_emissions = sum(Emissions_mtCO2e, na.rm = TRUE))
+
+sf_emissions_by_type <- sf_emissions |>
+  group_by(Calendar_Year, Commodity_Type) |>
+  summarise(annual_emissions = sum(Emissions_mtCO2e, na.rm = TRUE))
+```
+
+```{r}
+
+```
+
+
+
+
+
+
+

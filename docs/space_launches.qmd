@@ -1,0 +1,86 @@
+---
+title: "eds 221: activities"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+# General use packages:
+library(tidyverse)
+library(here)
+library(janitor)
+
+# Specifically for plots:
+library(patchwork)
+library(ggrepel)
+library(gghighlight)
+library(paletteer)
+library(ggExtra)
+library(ggbeeswarm)
+
+# And for another dataset we'll explore:
+library(gapminder)
+
+# Spatial
+library(sf)
+
+
+library(wordcloud2)
+```
+
+```{r}
+space <- read_csv(here("data", "space_launches.csv"))
+```
+
+```{r}
+unique(space_sub$agency)
+unique(space$type)
+```
+
+```{r}
+space_sub <- space |>
+  drop_na(agency) |>
+  group_by(agency) |>
+  summarize(count = n()) |>
+  mutate(fraction = count / sum(count),
+         ymax = cumsum(fraction),
+         ymin = c(0, head(ymax, n=-1)))
+
+image <- png::readPNG(here("figs", "rocket.png"))   
+  
+
+```
+
+```{r}
+donut_base <- ggplot(space_sub, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=agency)) +
+     geom_rect() +
+     coord_polar(theta="y") +
+     xlim(c(-1, 4)) 
+```
+
+```{r}
+donut_base <- donut_base +
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(color = "yellow"),
+        plot.background = element_rect(fill = "black"),
+        text = element_text(size = 12, family = "serif"),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        plot.title = element_text(color = "green"),
+        plot.caption = element_text(color = "green"),
+        panel.background = element_rect(color = "purple", fill = "#60495a")) +
+  labs(title = "WHO THE HECK IS IN SPACE?!?!?",
+       caption = "bet ya really can't tell")
+
+ggsave(here("figs", "space_donut.png"))
+```
+
+
+
+
+
+
+
+
+
