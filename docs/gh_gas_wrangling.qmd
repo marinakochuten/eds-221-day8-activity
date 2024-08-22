@@ -20,9 +20,47 @@ sf_emissions_by_type <- sf_emissions |>
 ```
 
 ```{r}
-
+pge_emissions_after_2005 <- sf_emissions |>
+  filter(Calendar_Year >= 2005,
+         str_detect(Sector_Detail2, "PG&E")) |>
+  select(Calendar_Year, Sector_Detail2, Emissions_mtCO2e)
 ```
 
+# make your best graph!
+```{r}
+transport_emissions <- sf_emissions |>
+  filter(Sector_General == "Transportation",
+         Sector_Detail1 %in% c("Public Transportation", "Cars & Trucks")) |>
+  select(Sector_Detail1, Calendar_Year, Emissions_mtCO2e) |>
+  group_by(Sector_Detail1, Calendar_Year) |>
+  summarise(total_annual_emissions = sum(Emissions_mtCO2e, na.rm = TRUE))
+```
+
+```{r}
+ggplot(data = transport_emissions, aes(x = Calendar_Year, y = total_annual_emissions, by = Sector_Detail1)) +
+  geom_line(size = 1.2, color = "#656d4a") +
+  labs(x = "Year",
+       y = "Annual Carbon Emissions\n(metric tons co2 equivalent)\n",
+       title = "San Francisco Tranportation Emissions (1990 - 2019)",
+       caption = "Data: San Francisco Communitywide Greenhouse Gas Inventory") +
+  scale_y_continuous(limits = c(0, 2250000),
+                     breaks = c(500000, 1000000, 1500000, 
+                                2000000),
+                     labels = scales::label_comma()) +
+  scale_x_continuous(limits = c(1990, 2025),
+                     breaks = seq(1990, 2020, by = 10),
+                     expand = c(0,0)) +
+  annotate("text", x = 2020, y = 1540000,
+           label = "Cars & trucks (private)",
+           size = 3) +
+  annotate("text", x = 2020, y = 0,
+           label = "Public transportation",
+           size = 3) +
+  theme_minimal()
+  
+
+ggsave(here("figs", "sf_transportation_emissions.png"))
+```
 
 
 
